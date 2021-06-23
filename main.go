@@ -17,8 +17,9 @@ func main() {
 		Twothousands : 10,
 		Fivehundreds : 20,
 		Hundreds : 30,
-	} 
-	fmt.Println("Welcome Please select your action. 1. Type WD for Withdrawl 2. Type Feed for add denoms")
+	}
+	Start:  
+	fmt.Println("Welcome Please select your action. \n 1. Press 1 for Withdrawl  \n 2. Press 2 for Add Currencies \n")
 	var option string
 	_, err := fmt.Scanln(&option)
 	if err != nil {
@@ -26,10 +27,11 @@ func main() {
 		return
 	}
 	switch option {
-		case "Feed":
+		case "2":
 			feeder()
-		case "WD":
+		case "1":
 			Denominator(availableCurrencies)
+			goto Start
 		default:
 			break		
 	}
@@ -42,22 +44,20 @@ func Denominator(currency *Currency) {
 	if amount <= 10000 && validateAmount(amount) {
 		if amount > 2000 {
 			twoDenoms,balance := splitter(amount,2000,currency)
-			fmt.Println("Number of 2000s:", twoDenoms)
+			if twoDenoms <= currency.Twothousands {
+				currency.Twothousands = currency.Twothousands - twoDenoms
+				fmt.Println("Number of 2000s:", twoDenoms)
+			} else {
+				balance = amount
+			}
 			if balance >= 500 {
-				fiveDenoms,fiveBalance := splitter(balance,500,currency)
-				fmt.Println("Number of 500s:", fiveDenoms)
-				if fiveBalance >= 100 && fiveBalance < 500 {
-					oneDenoms, _ := splitter(fiveBalance,100,currency)
-					fmt.Println("Number of 100s:",oneDenoms)
-				}
+				handleFiveHundreds(balance, currency)
+			} else {
+				handleHundreds(balance, currency)
 			}
 		} else if amount >= 500 {
-			fiveDenoms, fiveBalance := splitter(amount,500,currency)
-			fmt.Println("Number of 500s:",fiveDenoms)
-			if fiveBalance >= 100 {
-				oneDenoms, _ := splitter(fiveBalance,100,currency)
-				fmt.Println("Number of 100s:",oneDenoms)
-			}
+			handleFiveHundreds(amount, currency)
+			fmt.Println(currency)
 		}
 	} else {
 		fmt.Println("Invalid Amount entered, Please enter multiples of 100s and amount should not exceeds 10000")
@@ -68,6 +68,30 @@ func splitter(amount,value int,currency *Currency) (denom,x int) {
 	denom = amount / value
 	x = amount - (denom * value)
 	return
+}
+
+func handleFiveHundreds(balance int, currency *Currency) {
+	fiveDenoms,fiveBalance := splitter(balance,500,currency)
+	if fiveDenoms <= currency.Fivehundreds {
+		currency.Fivehundreds = currency.Fivehundreds - fiveDenoms
+		fmt.Println("Number of 500s:", fiveDenoms)
+	} else {
+		fiveBalance = balance	
+	}
+	handleHundreds(fiveBalance, currency)
+}
+
+func handleHundreds(balance int, currency *Currency) {
+	//if balance >= 100 && balance < 500 {
+	if balance >= 100 {
+		oneDenoms, _ := splitter(balance,100,currency)
+		if oneDenoms <= currency.Hundreds {
+			currency.Hundreds = currency.Hundreds - oneDenoms
+			fmt.Println("Number of 100s:",oneDenoms)
+		} else {
+			fmt.Println("Sorry! Running out of cash")
+		}
+	}
 }
 
 func validateAmount(amount int) bool {
