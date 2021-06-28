@@ -28,7 +28,8 @@ func main() {
 	}
 	switch option {
 		case "2":
-			feeder()
+			Feeder(availableCurrencies)
+			goto Start
 		case "1":
 			Denominator(availableCurrencies)
 			goto Start
@@ -82,7 +83,6 @@ func handleFiveHundreds(balance int, currency *Currency) {
 }
 
 func handleHundreds(balance int, currency *Currency) {
-	//if balance >= 100 && balance < 500 {
 	if balance >= 100 {
 		oneDenoms, _ := splitter(balance,100,currency)
 		if oneDenoms <= currency.Hundreds {
@@ -98,6 +98,19 @@ func validateAmount(amount int) bool {
 	return amount % 100 == 0
 }
 
-func feeder() {
-
+func Feeder(currency *Currency) {
+	fmt.Println("Enter 2000 currencies quantity: ");
+	var twoThousands int
+	fmt.Scanln(&twoThousands)
+	currency.Twothousands += twoThousands
+	
+	fmt.Println("Enter 500 Currencies quantity: ");
+	var fiveHundreds int
+	fmt.Scanln(&fiveHundreds)
+	currency.Fivehundreds += fiveHundreds
+	
+	fmt.Println("Enter 100 Currencies quantity: ");
+	var hundreds int
+	fmt.Scanln(&hundreds)
+	currency.Hundreds += hundreds
 }
